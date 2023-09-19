@@ -40,20 +40,20 @@ let getHourlydata= async ({name})=>{
 let geticon= icon =>`https://openweathermap.org/img/wn/${icon}@2x.png`;
 
 let loadhourlydata=async (data)=>{
-    console.log(data);
+   
     let hourlysection=document.querySelector('.hourlyforecast');
     let innerContent=``;
     // console.log(data);
     let only=data.slice(0,12);
     let now=true;      
     for (const {dt_txt,icon,temp,temp_max,temp_min} of only) {
-        let [,time]=dt_txt.split(' ');
+        
        innerContent+=` <article >
-       <h2 class="now">${now===true?"Now":TimeNow.format(new Date(dt_txt))}</h2>
+       <h2 class="now">${now==true? "Now" :TimeNow.format(new Date(dt_txt))}</h2>
        <img src='${ geticon(icon)}'  class="icon" alt="" >
        <p class="temp">${formatTemp(temp)}</p>
-   </article>` 
-   now=false;
+     </article>` 
+         now=false;
     }
     hourlysection.innerHTML=innerContent;
 }
@@ -105,7 +105,7 @@ let loadFivedays=(hourlydata)=>{
     let count=4;
     for (const [key,val] of fivedays) {
         if(count<0)break;
-        console.log(val);
+        // console.log(val);
         content+=`
         <article class="days">
          <h1 class="fiveday-head">${today===false?"Today":key}</h1>
@@ -127,18 +127,64 @@ let loadFivedays=(hourlydata)=>{
     // </article>
     
 }
-        document.addEventListener('DOMContentLoaded', async()=>{
-            let currentforecast=await getdata();
+let loadCityNames=(cities)=>{
+console.log(cities);
+let optionsList=document.querySelector('#cities')
+let options=``;
+for (const city of cities) {
+    console.log(city.name);
+    options+=`<option value="${city.name}, ${city.state} ,${city.country}">`
+
+}
+optionsList.innerHTML=options;
+}
+let getCityName=async (text)=>{
+    try{
+
+        let city= await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${text}&limit=7&appid=${key}`)
+        let response=await city.json();
+        loadCityNames(response );
+    }catch(e){
+        console.log("Error in reading the city name"+e.message);
+    }
+    
+    
+}
+function debounceOnsearch(func,delay){
+    let timer;
+    //    console.log("working ");
+
+    return function(...args){
+        clearTimeout(timer)
+        timer=setTimeout(function(){
+            func.apply(this,args);
+        },delay);
+    };
+}
+let debounced=debounceOnsearch(getCityName,1000);
+let onSearch=(event)=>{
+    let {value}=event.target
+    
+    debounced(value);
+}
+document.addEventListener('DOMContentLoaded', async()=>{
+   async function fetchAndPopulate(){
+     const search=document.querySelector('#search');
+    search.addEventListener('input',function(event){
+    //    console.log("working ");
+        onSearch(event)
+    });
+    let currentforecast=await getdata();
     loadcontent(currentforecast);
     let hourlydata=await getHourlydata(currentforecast);
-    // console.log(hourlydata)
-    // console.log(currentforecast)
+   
     loadhourlydata(hourlydata)
+   
     loadFeelsLikeAndHumidity(currentforecast);
-    // console.log(hourlydata);
-    // fivedayforecast(hourlydata)
+   
     loadFivedays(hourlydata);
-    // let {city:{name},list}= await hourlydata;
-    // console.log(name)
+    }
+    fetchAndPopulate();
+   
    
 })
