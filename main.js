@@ -1,7 +1,5 @@
 const key='a3c54860356681a894fc6fe02a40e324';
-const city='Jabalpur'
-const url=`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`;
-
+// let selectedText=document.querySelector('#search').value;
 let DAYS_OF_WEEK=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 let TimeNow= new Intl.DateTimeFormat('en',{
@@ -9,7 +7,13 @@ let TimeNow= new Intl.DateTimeFormat('en',{
     hour12:true
 })
 
+let city='New Delhi, Delhi ,IN'
+let lat=null;
+let lon=null;
+
 let getdata=async ()=>{
+
+    const url=lat && lon?`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&units=metric`:`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`;
     let response= await fetch(url);
     return response.json();
 }
@@ -21,7 +25,7 @@ let loadcontent=({main:{temp,temp_min,temp_max},name,weather:[{description}]})=>
     currentforecast.querySelector('.temp').textContent=`${formatTemp(temp)}`;
     currentforecast.querySelector('.desc').textContent=description;
     currentforecast.querySelector('.high-low').textContent=`H:${formatTemp(temp_max)}  L:${formatTemp(temp_min)}`;
-    
+    // console.log(temp);
     
     
 }
@@ -127,16 +131,17 @@ let loadFivedays=(hourlydata)=>{
     // </article>
     
 }
-let loadCityNames=(cities)=>{
-console.log(cities);
-let optionsList=document.querySelector('#cities')
-let options=``;
-for (const city of cities) {
-    console.log(city.name);
-    options+=`<option value="${city.name}, ${city.state} ,${city.country}">`
 
-}
-optionsList.innerHTML=options;
+let loadCityNames=(cities)=>{
+    console.log(cities);
+    let optionsList=document.querySelector('#cities')
+    let options=``;
+    for (const {lat,lon,name,country,state} of cities) {
+        options+=`<option id="opt" data-list-value="${lat} ${lon}" value="${name}, ${state} ,${country}">`
+    }
+    optionsList.innerHTML=options;
+    // console.log(optionsList);
+
 }
 let getCityName=async (text)=>{
     try{
@@ -167,24 +172,48 @@ let onSearch=(event)=>{
     
     debounced(value);
 }
+let handleCityChange=(event)=>{
+    let {value}=event.target;
+    console.log(value);
+    // if(value===city)return;
+    console.log(event);
+    let w=document.querySelector('#cities');
+    let option=w.querySelectorAll('option');
+    if(option?.length){
+        Array.from(option).find((opt)=>{
+            if(opt.value===value){
+                [lat,lon]=opt.getAttribute('data-list-value').split(' ');
+                // console.log(lat);
+                // console.log(lon);
+            }
+        });
+        fetchAndPopulate()
+    }
+    // console.log(w);
+    // console.log(option);
+}
+async function fetchAndPopulate(txt){
+    
+     let currentforecast=await getdata(txt);
+     loadcontent(currentforecast);
+     let hourlydata=await getHourlydata(currentforecast);
+ 
+     loadhourlydata(hourlydata)
+ 
+     loadFeelsLikeAndHumidity(currentforecast);
+ 
+     loadFivedays(hourlydata);
+    // console.log(city);
+}
 document.addEventListener('DOMContentLoaded', async()=>{
-   async function fetchAndPopulate(){
-     const search=document.querySelector('#search');
+    const search=document.querySelector('#search');
     search.addEventListener('input',function(event){
     //    console.log("working ");
-        onSearch(event)
+        onSearch(event);
+        
     });
-    let currentforecast=await getdata();
-    loadcontent(currentforecast);
-    let hourlydata=await getHourlydata(currentforecast);
-   
-    loadhourlydata(hourlydata)
-   
-    loadFeelsLikeAndHumidity(currentforecast);
-   
-    loadFivedays(hourlydata);
-    }
-    fetchAndPopulate();
-   
+    search.addEventListener('change',handleCityChange);
+
+    fetchAndPopulate();   
    
 })
