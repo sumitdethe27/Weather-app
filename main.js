@@ -24,7 +24,7 @@ let loadcontent=({main:{temp,temp_min,temp_max},name,weather:[{description}]})=>
     currentforecast.querySelector('.city-name').textContent=name;
     currentforecast.querySelector('.temp').textContent=`${formatTemp(temp)}`;
     currentforecast.querySelector('.desc').textContent=description;
-    currentforecast.querySelector('.high-low').textContent=`H:${formatTemp(temp_max)}  L:${formatTemp(temp_min)}`;
+    currentforecast.querySelector('.high-low').textContent=`H: ${formatTemp(temp_max)}        L: ${formatTemp(temp_min)}`;
     // console.log(temp);
     
     
@@ -48,7 +48,7 @@ let loadhourlydata=async (data)=>{
     let hourlysection=document.querySelector('.hourlyforecast');
     let innerContent=``;
     // console.log(data);
-    let only=data.slice(0,12);
+    let only=data.slice(1,11);
     let now=true;      
     for (const {dt_txt,icon,temp,temp_max,temp_min} of only) {
         
@@ -133,7 +133,7 @@ let loadFivedays=(hourlydata)=>{
 }
 
 let loadCityNames=(cities)=>{
-    console.log(cities);
+    // console.log(cities);
     let optionsList=document.querySelector('#cities')
     let options=``;
     for (const {lat,lon,name,country,state} of cities) {
@@ -174,7 +174,7 @@ let onSearch=(event)=>{
 }
 let handleCityChange=(event)=>{
     let {value}=event.target;
-    console.log(value);
+    // console.log(value);
     // if(value===city)return;
     console.log(event);
     let w=document.querySelector('#cities');
@@ -205,6 +205,23 @@ async function fetchAndPopulate(txt){
      loadFivedays(hourlydata);
     // console.log(city);
 }
+const getLocationUsingGeoLocation=()=>{
+    navigator.geolocation.getCurrentPosition(({coords})=>{
+        if(!(lat && lon)){
+            lat=coords.latitude;
+            lon=coords.longitude;
+            console.log(lat);
+            console.log(lon);
+              fetchAndPopulate();
+        }
+        // console.log(latitude);
+        // console.log(longitude);
+       
+        
+    },err=>console.log(err))
+    console.log(lat);
+    console.log(lon);
+}
 document.addEventListener('DOMContentLoaded', async()=>{
     const search=document.querySelector('#search');
     search.addEventListener('input',function(event){
@@ -215,5 +232,5 @@ document.addEventListener('DOMContentLoaded', async()=>{
     search.addEventListener('change',handleCityChange);
 
     fetchAndPopulate();   
-   
+//    getLocationUsingGeoLocation();
 })

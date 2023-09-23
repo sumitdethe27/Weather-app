@@ -13,21 +13,35 @@
         <datalist id="cities">
         </datalist>
         <article id="current-forecast">
-            <h1 class="city-name">City name</h1>
-            <p class="temp">Temp</p>
-            <p class="desc">Description</p>
-            <p class="high-low">High Low</p>
+            <h1 class="city-name">City</h1>
+            <p class="temp">--</p>
+            <p class="desc">------</p>
+            <p class="high-low"></p>
         </article>
         <article id="hourly-forecast">
             <h1 class="hourly1">Hourly forecast</h1>
                 <section class="hourlyforecast">
-                    
+                    <article >
+                        <h2 class="now">Now</h2>
+                        <p class="temp">--</p>
+                    </article><article >
+                        <h2 class="now">12pm</h2>
+                        <p class="temp">--</p>
+                    </article><article >
+                        <h2 class="now">3pm</h2>
+                        <p class="temp">--</p>
+                    </article>
                 </section>
         </article>
         <article id="fiveday-forecast">
             <h1 >5 day forecast</h1>
             <section class="fivedays">
-           
+                <article class="days">
+                    <h1 class="fiveday-head">Today</h1>
+                    <!-- <img class="fiveday-icon" style="height: 30px; width: 30px;" src="${geticon(val.icon)}"> -->
+                    <p class="fiveday-low">--</p>
+                    <p class="fiveday-high"> --</p>
+                </article>    
             </section>
         </article>
         <article id="feels-like">
