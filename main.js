@@ -6,29 +6,54 @@ let TimeNow= new Intl.DateTimeFormat('en',{
     hour:"numeric",
     hour12:true
 })
-
-let city='New Delhi, Delhi ,IN'
+const updateBackground=(description)=>{
+    
+        if(description===undefined||null){
+            description=document.querySelector('.desc').textContent;
+        }
+        background.forEach((item)=>{
+          if(description.toLowerCase().includes(item)){
+              document.body.style.backgroundImage=`url('./img/${item}.jpg')`
+              document.body.style.backgroundSize = "cover"; // Ensures the image covers the entire background
+              document.body.style.backgroundRepeat = "no-repeat"; // Prevents image repetition
+                   
+          }
+        })  
+      }
+  
+let city='New Delhi'
 let lat=null;
 let lon=null;
 
 let getdata=async ()=>{
-
-    const url=lat && lon?`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&units=metric`:`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`;
+    // console.log("working");
+    try{const url=(lat && lon)?`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&units=metric`:`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`;
     let response= await fetch(url);
+    console.log(response);
+    // console.log("response");
     return response.json();
+    }
+    catch(e){
+        console.log(e.message);
+        console.log("cant process");
+    }
 }
 let formatTemp=(temp) =>`${temp.toFixed(1)}°`;
-
-let loadcontent=({main:{temp,temp_min,temp_max},name,weather:[{description}]})=>{
+const background=['cloud','haze','mist','rain','sun'];
+let loadcontent=({main:{temp,temp_min,temp_max},name,weather:[{description,main}]})=>{
+    console.log(main.toLowerCase());
+    console.log(description);
     let currentforecast=document.querySelector('#current-forecast')
     currentforecast.querySelector('.city-name').textContent=name;
     currentforecast.querySelector('.temp').textContent=`${formatTemp(temp)}`;
     currentforecast.querySelector('.desc').textContent=description;
+    updateBackground(description);
     currentforecast.querySelector('.high-low').textContent=`H: ${formatTemp(temp_max)}        L: ${formatTemp(temp_min)}`;
     // console.log(temp);
     
     
 }
+
 let getHourlydata= async ({name})=>{
     let response=await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${name}&appid=${key}&units=metric`);
     let data= await response.json();
@@ -149,6 +174,7 @@ let getCityName=async (text)=>{
         let city= await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${text}&limit=7&appid=${key}`)
         let response=await city.json();
         loadCityNames(response );
+        updateBackground(description);
     }catch(e){
         console.log("Error in reading the city name"+e.message);
     }
