@@ -39,7 +39,7 @@ let getdata=async ()=>{
     }
 }
 let formatTemp=(temp) =>`${temp.toFixed(1)}°`;
-const background=['cloud','haze','mist','rain','sun'];
+const background=['cloud','sky','haze','mist','rain','sun'];
 let loadcontent=({main:{temp,temp_min,temp_max},name,weather:[{description,main}]})=>{
     console.log(main.toLowerCase());
     console.log(description);
